@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateExercise } from './utils/mathUtils';
 import './App.css';
 
@@ -7,62 +7,88 @@ function App() {
     const [operator, setOperator] = useState('+');
     const [nums, setNums] = useState({ n1: 0, n2: 0 });
     const [score, setScore] = useState(0);
+    const [bestScore, setBestScore] = useState(() => {
+        const saved = localStorage.getItem('mathGameBestScore');
+        return saved ? parseInt(saved) : 0;
+    });
     const [timeLeft, setTimeLeft] = useState(30);
     const [gameStarted, setGameStarted] = useState(false);
     const [useTimer, setUseTimer] = useState(true);
     const [inputValue, setInputValue] = useState('');
-
-    // 1. State חדש לפידבק
     const [feedback, setFeedback] = useState({ text: '', type: '' });
-    // 2. יצירת רפרנס לתיבת הטקסט
     const inputRef = useRef(null);
+
+    const scoreRef = useRef(score);
+    useEffect(() => {
+        scoreRef.current = score;
+    }, [score]);
 
     const startGame = () => {
         setScore(0);
         setTimeLeft(30);
         setGameStarted(true);
         setInputValue('');
-        setFeedback({ text: '', type: '' }); // איפוס פידבק
+        setFeedback({ text: '', type: '' });
         setNums(generateExercise(difficulty, operator));
-
-        // החזרת הפוקוס מיד כשהמשחק מתחיל
         setTimeout(() => inputRef.current?.focus(), 100);
     };
 
+    const handleStopGame = useCallback(() => {
+        const finalScore = scoreRef.current;
+        setBestScore(currentBest => {
+            if (useTimer && finalScore > currentBest) {
+                localStorage.setItem('mathGameBestScore', finalScore.toString());
+                return finalScore;
+            }
+            return currentBest;
+        });
+        setGameStarted(false);
+    }, [useTimer]); 
+
     const handleCheck = () => {
         if (!inputValue) return;
-        const opMap = { '×': '*', '÷': '/', '+': '+', '-': '-' };
-        const correct = eval(`${nums.n1} ${opMap[operator]} ${nums.n2}`);
+
+        let correct;
+        const { n1, n2 } = nums;
+
+        switch (operator) {
+            case '+': correct = n1 + n2; break;
+            case '-': correct = n1 - n2; break;
+            case '×': correct = n1 * n2; break;
+            case '÷': correct = n1 / n2; break;
+            default: correct = 0;
+        }
 
         if (parseInt(inputValue) === correct) {
             setScore(s => s + 1);
             setNums(generateExercise(difficulty, operator));
             setInputValue('');
-            setFeedback({ text: 'כל הכבוד! תשובה נכונה! 🏆', type: 'success' });
+            setFeedback({ text: 'כל הכבוד! 🏆', type: 'success' });
         } else {
             setInputValue('');
-            setFeedback({ text: 'לא נורא. נסה שוב! 💪', type: 'error' });
+            setFeedback({ text: 'נסה שוב! 💪', type: 'error' });
         }
-
-        // 3. החזרת הפוקוס לתיבה אחרי כל בדיקה
         inputRef.current?.focus();
     };
 
     useEffect(() => {
         let timer;
-        if (gameStarted && useTimer && timeLeft > 0) {
-            timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-        } else if (timeLeft === 0 && useTimer) {
-            setGameStarted(false);
-        }
-        return () => clearInterval(timer);
-    }, [gameStarted, timeLeft, useTimer]);
 
-    // מנקה את הפידבק ברגע שהילד מתחיל להקליד שוב
-    const handleInputChange = (e) => {
-        setInputValue(e.target.value);
-        if (feedback.text) setFeedback({ text: '', type: '' });
-    };
+        if (gameStarted && useTimer) {
+            timer = setInterval(() => {
+                setTimeLeft((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer);
+                        handleStopGame();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+
+        return () => clearInterval(timer);
+    }, [gameStarted, useTimer, handleStopGame]); 
 
     return (
         <div className="game-container">
@@ -70,17 +96,24 @@ function App() {
 
             {!gameStarted ? (
                 <div className="setup-screen">
-                    {/* ... כפתורי ההגדרות נשארו ללא שינוי ... */}
+                    {useTimer && (
+                        <div className="best-score-badge">
+                            שיא נוכחי: ⭐ {bestScore}
+                        </div>
+                    )}
+
                     <div className="section-box box-red">
                         {['+', '-', '×', '÷'].map(op => (
-                            <button key={op} className={`kid-btn op-btn ${operator === op ? 'active' : ''}`} onClick={() => setOperator(op)}>{op}</button>
+                            <button key={op} className={`kid-btn ${operator === op ? 'active' : ''}`} onClick={() => setOperator(op)}>{op}</button>
                         ))}
                     </div>
+
                     <div className="section-box box-blue">
                         {[10, 100, 1000].map(d => (
-                            <button key={d} className={`kid-btn diff-btn ${difficulty === d ? 'active' : ''}`} onClick={() => setDifficulty(d)}>{d}</button>
+                            <button key={d} className={`kid-btn ${difficulty === d ? 'active' : ''}`} onClick={() => setDifficulty(d)}>{d}</button>
                         ))}
                     </div>
+
                     <div className="section-box box-yellow">
                         <span className="label-text">טיימר:</span>
                         <div className={`switch ${useTimer ? 'on' : 'off'}`} onClick={() => setUseTimer(!useTimer)}>
@@ -105,29 +138,26 @@ function App() {
                     <div className="input-container">
                         <input
                             type="number"
-                            ref={inputRef} /* חיבור הרפרנס לכאן */
+                            ref={inputRef}
                             value={inputValue}
-                            onChange={handleInputChange} /* שימוש בפונקציה החדשה */
+                            onChange={(e) => {
+                                setInputValue(e.target.value);
+                                setFeedback({ text: '', type: '' });
+                            }}
                             onKeyUp={(e) => e.key === 'Enter' && handleCheck()}
                             autoFocus
                             className="answer-input"
                             placeholder="?"
-                            inputMode="numeric" /* חשוב למובייל - ראה הסבר למטה */
-                            pattern="\d*" /* חשוב למובייל */
+                            inputMode="numeric"
                         />
                     </div>
 
-                    {/* 4. הצגת הפידבק */}
                     <div className="feedback-container">
-                        {feedback.text && (
-                            <span className={`feedback-msg ${feedback.type}`}>
-                {feedback.text}
-              </span>
-                        )}
+                        {feedback.text && <span className={`feedback-msg ${feedback.type}`}>{feedback.text}</span>}
                     </div>
 
                     <button className="check-btn-big" onClick={handleCheck}>בדיקה! ✅</button>
-                    <button className="stop-btn-big" onClick={() => setGameStarted(false)}>עצור משחק 🛑</button>
+                    <button className="stop-btn-big" onClick={handleStopGame}>עצור משחק 🛑</button>
                 </div>
             )}
         </div>

@@ -12,7 +12,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Varela Round', sans-serif;
+    font-family: 'Varela Round', sans-serif; /* הוספנו פונט גנרי */
     direction: rtl;
     overflow: hidden;
 }
@@ -27,12 +27,12 @@ body {
     display: flex;
     flex-direction: column;
     padding: 15px;
-    box-shadow: 12px 12px 0px #2f2f2f;
+    box-shadow: 12px 12px 0 #2f2f2f; /* תיקון px */
     position: relative;
 }
 
 .game-title {
-    font-family: 'Rubik Moonrocks';
+    font-family: 'Rubik Moonrocks', cursive; /* הוספנו פונט גנרי */
     font-size: 2.8rem;
     margin: 5px 0;
     text-align: center;
@@ -44,7 +44,7 @@ body {
     border-radius: 20px;
     padding: 12px;
     margin-bottom: 10px;
-    box-shadow: 4px 4px 0px #2f2f2f;
+    box-shadow: 4px 4px 0 #2f2f2f; /* תיקון px */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,7 +55,25 @@ body {
 .box-blue { background-color: #4ecdc4; }
 .box-yellow { background-color: #ffe66d; }
 
-/* עיצוב כפתורי הבחירה (אופרטור ורמה) */
+.best-score-badge {
+    background: #ffe66d;
+    border: 3px solid #2f2f2f;
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 #2f2f2f; /* תיקון px */
+    align-self: center;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* עיצוב כפתורי הבחירה */
 .kid-btn {
     background: white;
     border: 3px solid #2f2f2f;
@@ -64,7 +82,7 @@ body {
     font-weight: bold;
     padding: 8px 15px;
     cursor: pointer;
-    box-shadow: 3px 3px 0px #2f2f2f;
+    box-shadow: 3px 3px 0 #2f2f2f; /* תיקון px */
     transition: 0.1s;
 }
 
@@ -72,10 +90,10 @@ body {
     background: #2f2f2f;
     color: white;
     transform: translate(2px, 2px);
-    box-shadow: 0px 0px 0px #2f2f2f;
+    box-shadow: 0 0 0 #2f2f2f; /* תיקון px */
 }
 
-/* כפתור התחלה ענקי */
+/* כפתור התחלה */
 .start-btn-big {
     background: #66bb6a;
     color: white;
@@ -84,7 +102,7 @@ body {
     padding: 15px;
     border: 4px solid #2f2f2f;
     border-radius: 20px;
-    box-shadow: 0 8px 0px #388e3c;
+    box-shadow: 0 8px 0 #388e3c; /* תיקון px */
     cursor: pointer;
     margin-top: auto;
     width: 100%;
@@ -92,10 +110,9 @@ body {
 
 .start-btn-big:active {
     transform: translateY(4px);
-    box-shadow: 0 4px 0px #388e3c;
+    box-shadow: 0 4px 0 #388e3c; /* תיקון px */
 }
 
-/* בועות ניקוד וזמן */
 .stats-container {
     display: flex;
     justify-content: space-around;
@@ -110,12 +127,11 @@ body {
     border-radius: 15px;
     font-size: 1.4rem;
     font-weight: bold;
-    box-shadow: 3px 3px 0px #2f2f2f;
+    box-shadow: 3px 3px 0 #2f2f2f; /* תיקון px */
 }
 
 .timer-bubble { background: #ffe66d; }
 
-/* תצוגת התרגיל והקלט */
 .exercise-display {
     font-size: 4.5rem;
     font-weight: 900;
@@ -134,7 +150,7 @@ body {
     border: none;
     background: transparent;
     outline: none;
-    font-family: 'Varela Round';
+    font-family: 'Varela Round', sans-serif;
 }
 
 /* כפתור בדיקה */
@@ -145,17 +161,17 @@ body {
     padding: 15px;
     border: 4px solid #2f2f2f;
     border-radius: 20px;
-    box-shadow: 0 8px 0px #3a9b93;
+    box-shadow: 0 8px 0 #3a9b93; /* תיקון px */
     cursor: pointer;
     width: 100%;
 }
 
 .check-btn-big:active {
     transform: translateY(4px);
-    box-shadow: 0 4px 0px #3a9b93;
+    box-shadow: 0 4px 0 #3a9b93; /* תיקון px */
 }
 
-/* כפתור עצור */
+/* כפתור עצור מוגדל */
 .stop-btn-big {
     background: #ff6b6b;
     color: white;
@@ -164,17 +180,32 @@ body {
     padding: 12px;
     border: 4px solid #2f2f2f;
     border-radius: 20px;
-    box-shadow: 0 6px 0px #c0392b;
+    box-shadow: 0 6px 0 #c0392b; /* תיקון px */
     cursor: pointer;
     margin-top: 15px;
     width: 100%;
-    transition: 0.1s;
 }
 
 .stop-btn-big:active {
     transform: translateY(4px);
-    box-shadow: 0 2px 0px #c0392b;
+    box-shadow: 0 2px 0 #c0392b; /* תיקון px */
 }
+
+.feedback-container {
+    height: 40px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.feedback-msg {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.feedback-msg.success { color: #2e7d32; }
+.feedback-msg.error { color: #c0392b; }
 
 /* ביטול חיצים ב-input */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
@@ -203,24 +234,6 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
     left: 2px;
     transition: 0.2s;
 }
-
-.feedback-container {
-    height: 30px; /* שומר על גובה קבוע כדי שהכפתורים לא יקפצו */
-    margin: 5px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.feedback-msg {
-    font-size: 1.4rem;
-    font-weight: bold;
-    animation: popIn 0.3s ease;
-}
-
-.feedback-msg.success { color: #2e7d32; }
-.feedback-msg.error { color: #c0392b; }
-
 .switch.on .handle { left: 32px; }
 
 .label-text, .timer-text { font-weight: bold; font-size: 1.2rem; }
